@@ -193,6 +193,19 @@ new Chart(ctx,{
         interaction:{mode:'index',intersect:false},
         plugins:{
             legend:{display:false},
+            zoom:{
+                wheel:{
+                    enabled:true,
+                    speed:0.05
+                },
+                pan:{
+                    enabled:true,
+                    mode:'x'
+                },
+                drag:{
+                    enabled:false
+                }
+            },
             tooltip:{
                 backgroundColor:'#1a1a2e',
                 borderColor:'#2a2a4a',
