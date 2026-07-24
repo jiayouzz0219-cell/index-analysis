@@ -194,6 +194,12 @@ const zoomPlugin = {
     ['mouseup','mouseleave'].forEach(ev=>{
       chart.canvas.addEventListener(ev,()=>{dragging=false;chart.canvas.style.cursor='grab';});
     });
+    chart.canvas.addEventListener('dblclick', () => {
+      const s = chart.scales.x;
+      s.options.min = 0;
+      s.options.max = raw.length - 1;
+      chart.update('none');
+    });
   }
 };
 Chart.register(zoomPlugin);
