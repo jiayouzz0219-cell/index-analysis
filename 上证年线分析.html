@@ -167,40 +167,32 @@ var filteredMA = ma250.filter(function(_,i){return i%step===0||i===ma250.length-
 const zoomPlugin = {
   id: 'zoom',
   beforeInit(chart) {
-    const zoomState = { min: 0, max: 1 };
     chart.canvas.style.cursor = 'grab';
+    let dragging = false, startX;
     chart.canvas.addEventListener('wheel', (e) => {
       e.preventDefault();
-      const scale = chart.options.scales.x;
-      const range = scale.max - scale.min;
-      const factor = e.deltaY > 0 ? 1.05 : 0.95;
-      const center = (e.offsetX / chart.width);
-      const newMin = scale.min + (center * range) * (1 - factor);
-      const newMax = scale.max - ((1 - center) * range) * (1 - factor);
-      scale.min = newMin;
-      scale.max = newMax;
+      const s = chart.scales.x;
+      const range = s.max - s.min;
+      const factor = e.deltaY > 0 ? 1.1 : 0.9;
+      const center = s.getValueForPixel(e.offsetX);
+      s.options.min = center - (center - s.min) * factor;
+      s.options.max = center + (s.max - center) * factor;
       chart.update('none');
     });
-    let dragging = false, startX;
     chart.canvas.addEventListener('mousedown', (e) => {
       dragging = true; startX = e.offsetX;
       chart.canvas.style.cursor = 'grabbing';
     });
     chart.canvas.addEventListener('mousemove', (e) => {
       if (!dragging) return;
-      const scale = chart.options.scales.x;
-      const dx = (e.offsetX - startX) / chart.width * (scale.max - scale.min);
-      scale.min -= dx; scale.max -= dx;
+      const s = chart.scales.x;
+      const dx = (startX - e.offsetX) / chart.width * (s.max - s.min);
+      s.options.min += dx; s.options.max += dx;
       startX = e.offsetX;
       chart.update('none');
     });
-    chart.canvas.addEventListener('mouseup', () => {
-      dragging = false;
-      chart.canvas.style.cursor = 'grab';
-    });
-    chart.canvas.addEventListener('mouseleave', () => {
-      dragging = false;
-      chart.canvas.style.cursor = 'grab';
+    ['mouseup','mouseleave'].forEach(ev=>{
+      chart.canvas.addEventListener(ev,()=>{dragging=false;chart.canvas.style.cursor='grab';});
     });
   }
 };
@@ -249,7 +241,12 @@ new Chart(ctx,{
             }
         },
         scales:{
-            x:{display:false},
+            x:{
+                display:false,
+                min:0,
+                max:raw.length-1,
+                ticks:{callback:function(v){return raw[v]?raw[v].d:'';}}
+            },
             y:{
                 grid:{color:'#1a1a30'},
                 ticks:{color:'#666',font:{size:10}}
