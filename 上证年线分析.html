@@ -163,6 +163,49 @@ for(var i=0;i<raw.length;i++){
 }
 var filteredMA = ma250.filter(function(_,i){return i%step===0||i===ma250.length-1;});
 
+
+const zoomPlugin = {
+  id: 'zoom',
+  beforeInit(chart) {
+    const zoomState = { min: 0, max: 1 };
+    chart.canvas.style.cursor = 'grab';
+    chart.canvas.addEventListener('wheel', (e) => {
+      e.preventDefault();
+      const scale = chart.options.scales.x;
+      const range = scale.max - scale.min;
+      const factor = e.deltaY > 0 ? 1.05 : 0.95;
+      const center = (e.offsetX / chart.width);
+      const newMin = scale.min + (center * range) * (1 - factor);
+      const newMax = scale.max - ((1 - center) * range) * (1 - factor);
+      scale.min = newMin;
+      scale.max = newMax;
+      chart.update('none');
+    });
+    let dragging = false, startX;
+    chart.canvas.addEventListener('mousedown', (e) => {
+      dragging = true; startX = e.offsetX;
+      chart.canvas.style.cursor = 'grabbing';
+    });
+    chart.canvas.addEventListener('mousemove', (e) => {
+      if (!dragging) return;
+      const scale = chart.options.scales.x;
+      const dx = (e.offsetX - startX) / chart.width * (scale.max - scale.min);
+      scale.min -= dx; scale.max -= dx;
+      startX = e.offsetX;
+      chart.update('none');
+    });
+    chart.canvas.addEventListener('mouseup', () => {
+      dragging = false;
+      chart.canvas.style.cursor = 'grab';
+    });
+    chart.canvas.addEventListener('mouseleave', () => {
+      dragging = false;
+      chart.canvas.style.cursor = 'grab';
+    });
+  }
+};
+Chart.register(zoomPlugin);
+
 new Chart(ctx,{
     type:'line',
     data:{
