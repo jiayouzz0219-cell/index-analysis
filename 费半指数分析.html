@@ -109,7 +109,7 @@ for(var i=0;i<len;i++){
 var zoomState = {dragging:false,startX:0};
 const zoomPlugin = {
   id: 'zoom',
-  afterEvent(chart, args) {
+  beforeEvent(chart, args) {
     var e = args.event;
     if (e.type === 'wheel') {
       e.preventDefault();
