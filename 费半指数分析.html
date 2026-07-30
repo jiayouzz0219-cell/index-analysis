@@ -105,6 +105,45 @@ for(var i=0;i<len;i++){
     if(i<19)ma20_.push(null);else{var s=0;for(var j=i-19;j<=i;j++)s+=prices[j];ma20_.push(s/20);}
     if(i<59)ma60_.push(null);else{var s=0;for(var j=i-59;j<=i;j++)s+=prices[j];ma60_.push(s/60);}
 }
+
+const zoomPlugin = {
+  id: 'zoom',
+  beforeInit(chart) {
+    chart.canvas.style.cursor = 'grab';
+    let dragging = false, startX;
+    chart.canvas.addEventListener('wheel', function(e) {
+      e.preventDefault();
+      var s = chart.scales.x;
+      var center = s.getValueForPixel(e.offsetX);
+      var factor = e.deltaY > 0 ? 1.1 : 0.9;
+      s.options.min = center - (center - s.min) * factor;
+      s.options.max = center + (s.max - center) * factor;
+      chart.update('none');
+    });
+    chart.canvas.addEventListener('mousedown', function(e) {
+      dragging = true; startX = e.offsetX;
+      chart.canvas.style.cursor = 'grabbing';
+    });
+    chart.canvas.addEventListener('mousemove', function(e) {
+      if (!dragging) return;
+      var s = chart.scales.x;
+      var dx = (startX - e.offsetX) / chart.width * (s.max - s.min);
+      s.options.min += dx; s.options.max += dx;
+      startX = e.offsetX;
+      chart.update('none');
+    });
+    ['mouseup','mouseleave'].forEach(function(ev){
+      chart.canvas.addEventListener(ev,function(){dragging=false;chart.canvas.style.cursor='grab';});
+    });
+    chart.canvas.addEventListener('dblclick', function() {
+      var s = chart.scales.x;
+      s.options.min = null;
+      s.options.max = null;
+      chart.update('none');
+    });
+  }
+};
+Chart.register(zoomPlugin);
 new Chart(document.getElementById('c'),{
     type:'line',
     data:{
