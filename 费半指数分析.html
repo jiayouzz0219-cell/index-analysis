@@ -106,12 +106,12 @@ for(var i=0;i<len;i++){
     if(i<59)ma60_.push(null);else{var s=0;for(var j=i-59;j<=i;j++)s+=prices[j];ma60_.push(s/60);}
 }
 
+var zoomState = {dragging:false,startX:0};
 const zoomPlugin = {
   id: 'zoom',
-  beforeInit(chart) {
-    chart.canvas.style.cursor = 'grab';
-    let dragging = false, startX;
-    chart.canvas.addEventListener('wheel', function(e) {
+  afterEvent(chart, args) {
+    var e = args.event;
+    if (e.type === 'wheel') {
       e.preventDefault();
       var s = chart.scales.x;
       var center = s.getValueForPixel(e.offsetX);
@@ -119,28 +119,24 @@ const zoomPlugin = {
       s.options.min = center - (center - s.min) * factor;
       s.options.max = center + (s.max - center) * factor;
       chart.update('none');
-    });
-    chart.canvas.addEventListener('mousedown', function(e) {
-      dragging = true; startX = e.offsetX;
+    } else if (e.type === 'mousedown') {
+      zoomState.dragging = true; zoomState.startX = e.offsetX;
       chart.canvas.style.cursor = 'grabbing';
-    });
-    chart.canvas.addEventListener('mousemove', function(e) {
-      if (!dragging) return;
+    } else if (e.type === 'mousemove' && zoomState.dragging) {
       var s = chart.scales.x;
-      var dx = (startX - e.offsetX) / chart.width * (s.max - s.min);
+      var dx = (zoomState.startX - e.offsetX) / chart.width * (s.max - s.min);
       s.options.min += dx; s.options.max += dx;
-      startX = e.offsetX;
+      zoomState.startX = e.offsetX;
       chart.update('none');
-    });
-    ['mouseup','mouseleave'].forEach(function(ev){
-      chart.canvas.addEventListener(ev,function(){dragging=false;chart.canvas.style.cursor='grab';});
-    });
-    chart.canvas.addEventListener('dblclick', function() {
+    } else if (e.type === 'mouseup' || e.type === 'mouseleave') {
+      zoomState.dragging = false;
+      chart.canvas.style.cursor = 'grab';
+    } else if (e.type === 'dblclick') {
       var s = chart.scales.x;
       s.options.min = null;
       s.options.max = null;
       chart.update('none');
-    });
+    }
   }
 };
 Chart.register(zoomPlugin);
