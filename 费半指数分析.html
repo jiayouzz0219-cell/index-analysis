@@ -151,16 +151,14 @@ new Chart(document.getElementById('c'),{
         datasets:[{
             label:'SOX',data:prices,borderColor:'#4ecca3',borderWidth:1.5,pointRadius:0,pointHitRadius:10,fill:true,backgroundColor:'rgba(78,204,163,0.04)'
         },{
-            label:'MA20',data:ma20_,borderColor:'#e94560',borderWidth:1.5,pointRadius:0,borderDash:[3,3],fill:false
+            label:'MA20',data:ma20_,borderColor:'#e94560',borderWidth:1.5,pointRadius:0,pointHitRadius:10,borderDash:[3,3],fill:false
         },{
-            label:'MA60',data:ma60_,borderColor:'#f0a500',borderWidth:1.5,pointRadius:0,borderDash:[6,4],fill:false
+            label:'MA60',data:ma60_,borderColor:'#f0a500',borderWidth:1.5,pointRadius:0,pointHitRadius:10,borderDash:[6,4],fill:false
         }]
     },
     options:{
         responsive:true,maintainAspectRatio:false,
-        interaction:{mode:'nearest',intersect:false,axis:'xy'},
-        hover:{mode:'nearest',intersect:false},
-        plugins:{legend:{display:false},tooltip:{backgroundColor:'#1a1a2e',borderColor:'#2a2a4a',borderWidth:1,callbacks:{title:function(items){return items[0].label;},label:function(item){if(item.datasetIndex===0)return 'SOX: '+item.formattedValue;if(item.datasetIndex===1 && item.raw)return 'MA20: '+item.raw.toFixed(1);if(item.datasetIndex===2 && item.raw)return 'MA60: '+item.raw.toFixed(1);return '';}}},
+        plugins:{legend:{display:false},tooltip:{mode:'nearest',intersect:false,backgroundColor:'#1a1a2e',borderColor:'#2a2a4a',borderWidth:1,callbacks:{title:function(items){return items[0].label;},label:function(item){if(item.datasetIndex===0)return 'SOX: '+item.formattedValue;if(item.datasetIndex===1 && item.raw)return 'MA20: '+item.raw.toFixed(1);if(item.datasetIndex===2 && item.raw)return 'MA60: '+item.raw.toFixed(1);return '';}}}},
         scales:{x:{display:false},y:{grid:{color:'#1a1a30'},ticks:{color:'#666',font:{size:10}}}}
     }
 });
