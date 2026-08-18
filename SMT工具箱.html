@@ -5354,6 +5354,24 @@ async function rfDownloadPDF() {
     rfHideLoading();
   }
 }
+
+/* ── 全局同步面板 → RF 联动 ── */
+window.addEventListener('load', function(){
+  var gsProd = document.getElementById('__gs_prod');
+  var gsSer = document.getElementById('__gs_ser');
+  var gsBtn = document.getElementById('__gs_syncbtn');
+  function sync(){
+    var rp = document.getElementById('rf-product');
+    var rm = document.getElementById('rf-model');
+    var changed = false;
+    if (gsProd && rp && rp.value !== gsProd.value) { rp.value = gsProd.value; changed = true; }
+    if (gsSer && rm && rm.value !== gsSer.value) { rm.value = gsSer.value; changed = true; }
+    if (changed && rfPdfDoc) rfOnInput();
+  }
+  if (gsProd) gsProd.addEventListener('input', sync);
+  if (gsSer) gsSer.addEventListener('input', sync);
+  if (gsBtn) gsBtn.addEventListener('click', sync);
+});
 </script>
 
 <script>
@@ -5485,6 +5503,24 @@ async function ceDownloadPDF() {
     showToast('生成失败：' + err.message, 'error');
   }
 }
+
+/* ── 全局同步面板 → CE 联动 ── */
+window.addEventListener('load', function(){
+  var gsProd = document.getElementById('__gs_prod');
+  var gsSer = document.getElementById('__gs_ser');
+  var gsBtn = document.getElementById('__gs_syncbtn');
+  function sync(){
+    var cp = document.getElementById('ce-product');
+    var cm = document.getElementById('ce-model');
+    var changed = false;
+    if (gsProd && cp && cp.value !== gsProd.value) { cp.value = gsProd.value; changed = true; }
+    if (gsSer && cm && cm.value !== gsSer.value) { cm.value = gsSer.value; changed = true; }
+    if (changed && cePdfDoc) ceOnInput();
+  }
+  if (gsProd) gsProd.addEventListener('input', sync);
+  if (gsSer) gsSer.addEventListener('input', sync);
+  if (gsBtn) gsBtn.addEventListener('click', sync);
+});
 </script>
 </body>
 </html>
