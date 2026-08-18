@@ -5072,8 +5072,19 @@ function rfBase64ToBytes(b64str) {
 }
 async function rfGetBaseBytes() {
   if (!rfBaseBytes) {
-    const resp = await fetch('rf-report.pdf');
-    if (!resp.ok) throw new Error('RF 报告加载失败: ' + resp.status);
+    const urls = [
+      'https://cdn.jsdelivr.net/gh/jiayouzz0219-cell/index-analysis@master/rf-report.pdf',
+      'rf-report.pdf'
+    ];
+    let resp = null, lastErr = null;
+    for (const u of urls) {
+      try {
+        resp = await fetch(u);
+        if (resp.ok) break;
+        lastErr = 'HTTP ' + resp.status;
+      } catch (e) { lastErr = e.message; }
+    }
+    if (!resp || !resp.ok) throw new Error('RF 报告加载失败: ' + lastErr);
     const buf = await resp.arrayBuffer();
     rfBaseBytes = new Uint8Array(buf);
   }
@@ -5362,8 +5373,19 @@ function ceBase64ToBytes(b64str) {
 }
 async function ceGetBaseBytes() {
   if (!ceBaseBytes) {
-    const resp = await fetch('ce-cert.pdf');
-    if (!resp.ok) throw new Error('CE 证书加载失败: ' + resp.status);
+    const urls = [
+      'https://cdn.jsdelivr.net/gh/jiayouzz0219-cell/index-analysis@master/ce-cert.pdf',
+      'ce-cert.pdf'
+    ];
+    let resp = null, lastErr = null;
+    for (const u of urls) {
+      try {
+        resp = await fetch(u);
+        if (resp.ok) break;
+        lastErr = 'HTTP ' + resp.status;
+      } catch (e) { lastErr = e.message; }
+    }
+    if (!resp || !resp.ok) throw new Error('CE 证书加载失败: ' + lastErr);
     const buf = await resp.arrayBuffer();
     ceBaseBytes = new Uint8Array(buf);
   }
