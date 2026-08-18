@@ -5355,6 +5355,27 @@ async function rfDownloadPDF() {
   }
 }
 
+/* ── 全局同步面板 → RF 图片同步 ── */
+function rfSyncGlobalImg(dataUrl) {
+  if (!dataUrl) return;
+  ['e','c'].forEach(function(k){
+    var prev = document.getElementById('rf-slot-' + k + '-preview');
+    if (prev) { prev.src = dataUrl; prev.style.display = 'block'; }
+    var ph = document.getElementById('rf-slot-' + k + '-ph');
+    if (ph) ph.style.display = 'none';
+  });
+  rfNormalizeImage(dataUrl).then(function(normalized){
+    rfImgData.e = normalized;
+    rfImgData.c = normalized;
+    rfUpdateImgOverlay('e');
+    rfUpdateImgOverlay('c');
+    if (rfPdfDoc) { rfCurPage = 69; rfRefreshPreview(); }
+  }).catch(function(err){
+    console.error('图片处理失败', err);
+    showToast('图片处理失败：' + err.message, 'error');
+  });
+}
+
 /* ── 全局同步面板 → RF 联动 ── */
 window.addEventListener('load', function(){
   var gsProd = document.getElementById('__gs_prod');
@@ -5371,6 +5392,19 @@ window.addEventListener('load', function(){
   if (gsProd) gsProd.addEventListener('input', sync);
   if (gsSer) gsSer.addEventListener('input', sync);
   if (gsBtn) gsBtn.addEventListener('click', sync);
+
+  // 图片同步：监听全局面板预览图 src 变化（上传/粘贴/拖拽/URL/一键同步都更新它）
+  var gsPrev = document.getElementById('__gs_prev');
+  if (gsPrev && window.MutationObserver) {
+    var imgObserver = new MutationObserver(function(mutations){
+      mutations.forEach(function(m){
+        if (m.attributeName === 'src' && gsPrev.src) {
+          rfSyncGlobalImg(gsPrev.src);
+        }
+      });
+    });
+    imgObserver.observe(gsPrev, { attributes: true, attributeFilter: ['src'] });
+  }
 });
 </script>
 
